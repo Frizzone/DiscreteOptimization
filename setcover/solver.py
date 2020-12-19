@@ -50,8 +50,8 @@ def solve_it(input_data):
 
     # build a trivial solution
     # pick add sets one-by-one until all the items are covered
-    #solution = setcover_CP_cpsatsolver(sets, set_count, item_count)
-    solution = setcover_MIP_SCIPsolver(sets, set_count, item_count)
+    solution = setcover_CP_cpsatsolver(sets, set_count, item_count)
+    #solution = setcover_MIP_SCIPsolver(sets, set_count, item_count)
     coverted = set()
     
     for s in sets:
@@ -100,7 +100,7 @@ def setcover_CP_cpsatsolver(sets, set_count, item_count):
     model.Minimize(sum([sets[i].cost * x[i] for i in range(set_count)]))
 
     solver = cp_model.CpSolver()
-    solver.parameters.max_time_in_seconds = 600.0
+    solver.parameters.max_time_in_seconds = 60.0
     status = solver.Solve(model)
     
     solution = []
@@ -135,7 +135,6 @@ def setcover_MIP_SCIPsolver(sets, set_count, item_count):
 
     #minimizar custo*xi
     model.Minimize(sum([sets[i].cost * x[i] for i in range(set_count)]))
-    model.
     status = model.Solve()
     
     solution = []
