@@ -31,6 +31,7 @@ def solve_it(input_data):
         edges.append((int(parts[0]), int(parts[1])))
 
     
+    
     nodesColor = [-1]*node_count
 
     solution = ORToolsSolver(edges, node_count)
