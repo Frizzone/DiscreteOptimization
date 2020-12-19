@@ -1,0 +1,7 @@
+Good Optimization. 99084 -> 99798 or better. 
+Good Optimization. 141.956 -> 142.156 or better. 
+Good Optimization. 100.062 -> 100.236 or better. 
+Good Optimization. 3.966.813 -> 3.967.028 or better. 
+Good Optimization. 109.869 -> 109.899 or better. 
+Good Optimization. 1.099.870 -> 1.099.881 or better. 
+
