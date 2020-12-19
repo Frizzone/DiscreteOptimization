@@ -2,41 +2,6 @@
 # -*- coding: utf-8 -*-
 import copy
 
-def solve_it(input_data):
-    # Modify this code to run your optimization algorithm
-
-    # parse the input
-    lines = input_data.split('\n')
-
-    first_line = lines[0].split()
-    node_count = int(first_line[0])
-    edge_count = int(first_line[1])
-
-    edges = []
-    for i in range(1, edge_count + 1):
-        line = lines[i]
-        parts = line.split()
-        edges.append((int(parts[0]), int(parts[1])))
-
-    #call graph search
-    solution = exhaustive_search(0, edges, [0], node_count, 0)
-    while -1 in solution: 
-        temp = exhaustive_search(solution.index(-1), edges, [solution.index(-1)], node_count, 0)
-        mergeSolution(solution, temp, node_count)
-
-    #if(validadeSolution(edges, solution)): print ("A solução é válida")
-    #else: print ("A solução não é válida")
-
-    # prepare the solution in the specified output format
-    #output_data = str(max(solution)+1) + ' ' + str(0) + '\n'
-    #output_data += ' '.join(map(str, solution))
-
-    #return output_data
-
-def test(nodesColor):
-    nodesColor[0] = 10
-    print(nodesColor)
-
 def exhaustive_search(node, edges, path, node_count, maxValue):
     nextNodes = listNextNodes(node, edges)
 
@@ -114,14 +79,3 @@ def validadeSolution(edges, solution):
             print ("O nó " + str(edge[0]) + " não pode ter a mesma cor do nó " + str(edge[1]))
             return False
     return True
-
-if __name__ == '__main__':
-    import sys
-    if len(sys.argv) > 1:
-        file_location = sys.argv[1].strip()
-        with open(file_location, 'r') as input_data_file:
-            input_data = input_data_file.read()
-        print(solve_it(input_data))
-    else:
-        print('This test requires an input file.  Please select one from the data directory. (i.e. python solver.py ./data/gc_4_1)')
-

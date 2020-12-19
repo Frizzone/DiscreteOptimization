@@ -1,6 +1,5 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-from constraint import *
 from ortools.sat.python import cp_model
 
 class Node:
@@ -31,7 +30,7 @@ def solve_it(input_data):
         edges.append((int(parts[0]), int(parts[1])))
 
     
-    
+
     nodesColor = [-1]*node_count
 
     solution = ORToolsSolver(edges, node_count)
