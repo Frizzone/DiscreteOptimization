@@ -22,104 +22,6 @@ def greedy_algorithm(items, taken, capacity):
             weight += item.weight
     return value
 
-def dynamic_programming_slow(capacity, items):
-    value = 0
-    weight = 0
-
-    matrix = [[[0 for x in range(2)] for x in range(len(items) + 1)] for x in range(capacity + 1)]
-
-
-    for i in range(len(items)+1):
-        currentItem = items[i-1]
-        for k in range(capacity+1):
-            if (matrix[k][i][1] == 0): matrix[k][i][1]=()
-
-            if (i==0 or k==0): 
-                #quando é zero, não tem nenhum item
-                matrix[k][i][0]=0
-                matrix[k][i][1]=()
-            elif (currentItem.weight <= k): 
-                if(currentItem.value + matrix[k-currentItem.weight][i-1][0]):
-                    matrix[k][i][0] = matrix[k-currentItem.weight][i-1][0] + currentItem.value
-                    matrix[k][i][1] = matrix[k-currentItem.weight][i-1][1] + (currentItem,)
-                else:
-                    matrix[k][i][0] = matrix[k][i-1][0]
-                    matrix[k][i][1] = matrix[k][i-1][1]
-            else: 
-                matrix[k][i][0] = matrix[k][i-1][0]
-                matrix[k][i][1] = matrix[k][i-1][1]
-
-    return matrix[capacity][len(items)][0], matrix[capacity][len(items)][1]
-
-def dynamic_programming(capacity, items):
-    value = 0
-    weight = 0
-
-    matrix=[[]for x in range(len(items) + 1)]
-
-    for i in range(len(items)+1):
-        if(i==0): 
-            #consider number itens ==0
-            matrix[i].append(DimVector(0,capacity, 0, []))
-        else: 
-            k = 0
-            r = 0
-            currentItem = items[i-1]
-            oldRange = None
-            while k < capacity:
-
-                if(r==0):
-                    #se é o range 0, joga 0 até o item caber ou o o primeiro r do i-1
-                    rangeMinusI = findRangeByK(matrix[i-1], k)
-                    nextk = min(rangeMinusI.end, currentItem.weight-1)
-                    matrix[i].append(DimVector(0, nextk, 0, []))
-                else: 
-                    rangeMinusI = findRangeByK(matrix[i-1], k)
-                    rangeMinusW = findRangeByK(matrix[i-1], k-currentItem.weight)
-                    
-                    #próxima mudança é o menor valor entre i-1,k e i-1,k-w => ESTA LÓGICA ESTA INCORRETA
-                    #nextk = rangeMinusI.end
-                    #if rangeMinusW.end != 0: nextk = min(nextk, rangeMinusW.end)
-                    #para o primeiro item, considerar o peso
-                    #if(r==0):  nextk = min(nextk, currentItem.weight-1)
-
-                    #atualiza o fim do antigo
-                    initk = 0
-                    if(oldRange != None): initk = oldRange.end + 1
-                    
-                    nextk = 0
-                    if(currentItem.value + rangeMinusW.totalValue > rangeMinusI.totalValue):
-                        # se (i,k) + (i-1,k-w) > (i-1,k) => (i,k) + (i-1,k-w)
-
-                        #VALIDAR
-                        if(initk<currentItem.weight and rangeMinusI.TotalValue !=0): nextk = max(currentItem.weight, rangeMinusI.end)
-                        else: nextk = min(rangeMinusI.end, rangeMinusW.End + currentItem.weight)
-                        
-                        matrix[i].append(DimVector(initk, nextk, currentItem.value + rangeMinusW.totalValue, rangeMinusW.items + [currentItem]))
-                    else:
-                        # se (i,k) + (i-1,k-w) < (i-1,k) => put (i-1,k)
-                        nextk = rangeMinusI.end
-                        matrix[i].append(DimVector(initk, nextk, rangeMinusI.totalValue, rangeMinusI.items))
-
-                oldRange = matrix[i][r]
-                r = r + 1
-                k = k + nextk
-    return matrix[capacity][len(items)].totalValue, matrix[capacity][len(items)].items
-
-                
-def findRangeByK(ranges, k):
-        for r in ranges:
-            # k fora da matriz
-            if(k<0): return (DimVector(k, k, 0, []))
-            # k dentro da matriz
-            elif(k>=r.init and k<=r.end): return r
-
-def dynamic_programming_rec(capacity, items, n):
-    if n==0 or capacity==0: return 0
-
-    if(items[n-1].weight > capacity): return dynamic_programming_rec(capacity, items, n-1)
-    else: return max(items[n-1].value + dynamic_programming_rec(capacity-items[n-1].weight, items, n-1), dynamic_programming_rec(capacity, items, n-1))
-
 def exhaustive_search(items, n, room):
 
     if(n>=len(items)):
@@ -218,14 +120,12 @@ def solve_it(input_data):
 
     taken = [0]*len(items)
     #value = greedy_algorithm(items, taken, capacity)
-    value = dynamic_programming(capacity, items)
-    #value = dynamic_programming_rec(capacity, items, len(items))
     #value, toTake = exhaustive_search(items, 0, capacity)
-    #items.sort(key = lambda x: (x.weight/x.value))
-    #value, toTake = branch_bound(items, 0, capacity)
+    items.sort(key = lambda x: (x.weight/x.value))
+    value, toTake = branch_bound(items, 0, capacity)
 
 
-    #for i in toTake: taken[i.index] = 1
+    for i in toTake: taken[i.index] = 1
  
     
     #value = greedy_algorithm(items, taken, capacity)
