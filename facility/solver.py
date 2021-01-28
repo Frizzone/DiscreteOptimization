@@ -2,15 +2,15 @@
 # -*- coding: utf-8 -*-
 
 from collections import namedtuple
-import math
-import gurobipy
+import facility_SCIP
+import facility_gurobi
+import networkx as nx
+import matplotlib.pyplot as plt
+import functions
 
 Point = namedtuple("Point", ['x', 'y'])
 Facility = namedtuple("Facility", ['index', 'setup_cost', 'capacity', 'location'])
 Customer = namedtuple("Customer", ['index', 'demand', 'location'])
-
-def length(point1, point2):
-    return math.sqrt((point1.x - point2.x)**2 + (point1.y - point2.y)**2)
 
 def solve_it(input_data):
     # Modify this code to run your optimization algorithm
@@ -32,22 +32,12 @@ def solve_it(input_data):
         parts = lines[i].split()
         customers.append(Customer(i-1-facility_count, int(parts[0]), Point(float(parts[1]), float(parts[2]))))
 
-    # build a trivial solution
-    # pack the facilities one by one until all the customers are served
-    solution = [-1]*len(customers)
-    capacity_remaining = [f.capacity for f in facilities]
-
-    facility_index = 0
-    for customer in customers:
-        if capacity_remaining[facility_index] >= customer.demand:
-            solution[customer.index] = facility_index
-            capacity_remaining[facility_index] -= customer.demand
-        else:
-            facility_index += 1
-            assert capacity_remaining[facility_index] >= customer.demand
-            solution[customer.index] = facility_index
-            capacity_remaining[facility_index] -= customer.demand
-
+    # build a solution
+    solution = facility_SCIP.facility_SCIP(facilities, customers)
+    #solution = facility_gurobi.facility_gurobi(facilities, customers)
+    #validade_solution(solution, facilities, customers) 
+    #plot(solution, facilities, customers)
+        
     used = [0]*len(facilities)
     for facility_index in solution:
         used[facility_index] = 1
@@ -55,7 +45,7 @@ def solve_it(input_data):
     # calculate the cost of the solution
     obj = sum([f.setup_cost*used[f.index] for f in facilities])
     for customer in customers:
-        obj += length(customer.location, facilities[solution[customer.index]].location)
+        obj += functions.length(customer.location, facilities[solution[customer.index]].location)
 
     # prepare the solution in the specified output format
     output_data = '%.2f' % obj + ' ' + str(0) + '\n'
@@ -63,6 +53,51 @@ def solve_it(input_data):
 
     return output_data
 
+def plot(solution, facilities, customers):
+    G=nx.Graph()
+    
+    pos = {}
+    clist = []
+    for c in customers:
+        pos["c"+str(c.index)] = (c.location.x,c.location.y)
+        clist.append("c"+str(c.index))
+           
+    flist = []    
+    for f in facilities:
+        pos["f"+str(f.index)] = (f.location.x,f.location.y)
+        flist.append("f"+str(f.index))
+        
+    
+    nx.draw_networkx_nodes(G,pos,node_size=1,nodelist=clist,node_color='b')
+    nx.draw_networkx_nodes(G,pos,node_size=1,nodelist=flist,node_color='r')
+    
+
+    c=0
+    edges = []
+    for s in solution:
+        edges.append(("c"+str(c), "f"+str(s)))
+        c=c+1
+    
+    nx.draw_networkx_edges(G, pos, edgelist=edges)
+    
+    plt.show()
+
+def validade_solution(solution, facilities, customers):
+    #validar demanda X capacidade
+    capacity = [f.capacity for f in facilities]
+    customer_index = 0
+    for facility_index in solution:
+        capacity[facility_index] -= customers[customer_index].demand
+        #if(capacity[facility_index] < 0):  
+           # print("The solution is invalid. The facility " + str(facility_index) + "can not deliver material to all customer assigned")
+            #return False
+        customer_index += 1
+    
+    print(capacity)
+    
+    
+    
+    return True
 
 import sys
 
