@@ -1,6 +1,8 @@
 
 from ortools.linear_solver import pywraplp
 import functions
+from datetime import datetime
+
 
 def facility_SCIP(facilities, customers):
     # Create the mip solver with the SCIP backend.
@@ -35,8 +37,8 @@ def facility_SCIP(facilities, customers):
     # Set objective
     solver.Minimize(sum([F[f.index] * f.setup_cost for f in facilities]) + sum([sum([A[c.index][f.index] * functions.length(f.location, c.location) for f in facilities]) for c in customers]))
 
-    solver.SetTimeLimit(1000*60*60) #60 minutes
-    gap = 0.1
+    solver.SetTimeLimit(1000*60*120) #60 minutes
+    gap = 0.05
     solverParams = pywraplp.MPSolverParameters()
     solverParams.SetDoubleParam(solverParams.RELATIVE_MIP_GAP, gap)    
 
@@ -54,8 +56,11 @@ def facility_SCIP(facilities, customers):
                         print('The solutions has more than one facility to the same customer.')
                         break;
                     else: solution[customer.index] = facility.index
-                    
+        
+        now = datetime.now()
+        current_time = now.strftime("%H:%M:%S")
         print('\nAdvanced usage:')
+        print("Current Time =", current_time)
         print('Problem solved in %f milliseconds' % solver.wall_time())
         print('Problem solved in %d iterations' % solver.iterations())
         print('Problem solved in %d branch-and-bound nodes' % solver.nodes())

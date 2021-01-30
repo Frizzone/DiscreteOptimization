@@ -33,7 +33,7 @@ def facility_gurobi(facilities, customers):
         m.setObjective(sum([F[f.index] * f.setup_cost for f in facilities]) + sum([sum([A[c.index][f.index] * functions.length(f.location, c.location) for f in facilities]) for c in customers]), GRB.MINIMIZE)
 
    
-        m.write('model.mps')
+        #m.write('model.lp')
         
         #parameters
         m.Params.TimeLimit =60*10
