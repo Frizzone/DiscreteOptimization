@@ -3,6 +3,8 @@ import twoOptHeurisct
 import functions
 import time
 
+#2-opt Local Search Heuristic 
+#using Iterated Local Search: starting from different starting configuration
 def twoOptIterateLS(points, nodeCount, timeout):
     bestl = None
     bestSolution = None
