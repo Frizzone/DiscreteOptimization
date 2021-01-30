@@ -11,7 +11,7 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "args": [
-                "facility/data/fl_16_1"
+                "facility/data/fl_1000_2"
             ]
         }
     ]
