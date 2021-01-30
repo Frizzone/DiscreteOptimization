@@ -33,8 +33,8 @@ def solve_it(input_data):
         customers.append(Customer(i-1-facility_count, int(parts[0]), Point(float(parts[1]), float(parts[2]))))
 
     # build a solution
-    #solution = facility_SCIP.facility_SCIP(facilities, customers)
-    solution = facility_gurobi.facility_gurobi(facilities, customers)
+    #solution = mip_facility_SCIP.facility_SCIP(facilities, customers)
+    solution = mip_facility_gurobi.facility_gurobi(facilities, customers)
     #validade_solution(solution, facilities, customers) 
     #plot(solution, facilities, customers)
         

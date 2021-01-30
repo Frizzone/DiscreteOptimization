@@ -4,7 +4,7 @@ import functions
 from datetime import datetime
 
 
-def facility_SCIP(facilities, customers):
+def mip_facility_SCIP(facilities, customers):
     # Create the mip solver with the SCIP backend.
     solver = pywraplp.Solver.CreateSolver('SCIP')
     

@@ -2,7 +2,7 @@ import gurobipy as gp
 from gurobipy import *
 import functions
 
-def facility_gurobi(facilities, customers):
+def mip_facility_gurobi(facilities, customers):
     try:
         # Create a new model
         m = gp.Model("facility")
