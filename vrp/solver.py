@@ -1,13 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import math
-from collections import namedtuple
-
-Customer = namedtuple("Customer", ['index', 'demand', 'x', 'y'])
-
-def length(customer1, customer2):
-    return math.sqrt((customer1.x - customer2.x)**2 + (customer1.y - customer2.y)**2)
+import networkx as nx
+import matplotlib.pyplot as plt
+import functions
+import vpr_mip_gurobi
 
 def solve_it(input_data):
     # Modify this code to run your optimization algorithm
@@ -24,7 +21,7 @@ def solve_it(input_data):
     for i in range(1, customer_count+1):
         line = lines[i]
         parts = line.split()
-        customers.append(Customer(i-1, int(parts[0]), float(parts[1]), float(parts[2])))
+        customers.append(functions.Customer(i-1, int(parts[0]), float(parts[1]), float(parts[2])))
 
     #the depot is always the first customer in the input
     depot = customers[0] 
@@ -60,16 +57,18 @@ def solve_it(input_data):
     for v in range(0, vehicle_count):
         vehicle_tour = vehicle_tours[v]
         if len(vehicle_tour) > 0:
-            obj += length(depot,vehicle_tour[0])
+            obj += functions.length(depot,vehicle_tour[0])
             for i in range(0, len(vehicle_tour)-1):
-                obj += length(vehicle_tour[i],vehicle_tour[i+1])
-            obj += length(vehicle_tour[-1],depot)
+                obj += functions.length(vehicle_tour[i],vehicle_tour[i+1])
+            obj += functions.length(vehicle_tour[-1],depot)
 
     # prepare the solution in the specified output format
     outputData = '%.2f' % obj + ' ' + str(0) + '\n'
     for v in range(0, vehicle_count):
         outputData += str(depot.index) + ' ' + ' '.join([str(customer.index) for customer in vehicle_tours[v]]) + ' ' + str(depot.index) + '\n'
 
+    vpr_mip_gurobi.vpr_mip_gurobi(customers, vehicle_count)
+    
     return outputData
 
 

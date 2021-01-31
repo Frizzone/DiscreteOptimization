@@ -1,4 +1,4 @@
-import gurobipy as gp
+import gurobipy as gp 
 from gurobipy import *
 import functions
 
