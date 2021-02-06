@@ -24,9 +24,34 @@ def solve_it(input_data):
         customers.append(functions.Customer(i-1, int(parts[0]), float(parts[1]), float(parts[2])))
 
     #the depot is always the first customer in the input
-    depot = customers[0] 
+    depot = customers[0]
+
+    #vehicle_tours = buildTrivialSolution(customers, depot, vehicle_count, vehicle_capacity, customer_count)
+    vehicle_tours = vpr_mip_gurobi.vpr_mip_gurobi(customers, vehicle_count, vehicle_capacity)
 
 
+    # checks that the number of customers served is correct
+    #assert sum([len(v) for v in vehicle_tours]) == len(customers) - 1
+
+    # calculate the cost of the solution; for each vehicle the length of the route
+    obj = 0
+    for v in range(0, vehicle_count):
+        vehicle_tour = vehicle_tours[v]
+        if len(vehicle_tour) > 0:
+            obj += functions.length(depot,vehicle_tour[0])
+            for i in range(0, len(vehicle_tour)-1):
+                obj += functions.length(vehicle_tour[i],vehicle_tour[i+1])
+            obj += functions.length(vehicle_tour[-1],depot)
+
+    # prepare the solution in the specified output format
+    outputData = '%.2f' % obj + ' ' + str(0) + '\n'
+    for v in range(0, vehicle_count):
+        outputData += str(depot.index) + ' ' + ' '.join([str(customer.index) for customer in vehicle_tours[v]]) + ' ' + str(depot.index) + '\n'
+
+    
+    return outputData
+
+def buildTrivialSolution(customers, depot, vehicle_count, vehicle_capacity, customer_count):
     # build a trivial solution
     # assign customers to vehicles starting by the largest customer demands
     vehicle_tours = []
@@ -48,29 +73,7 @@ def solve_it(input_data):
                     # print '   add', ci, capacity_remaining
                     used.add(customer)
             remaining_customers -= used
-
-    # checks that the number of customers served is correct
-    assert sum([len(v) for v in vehicle_tours]) == len(customers) - 1
-
-    # calculate the cost of the solution; for each vehicle the length of the route
-    obj = 0
-    for v in range(0, vehicle_count):
-        vehicle_tour = vehicle_tours[v]
-        if len(vehicle_tour) > 0:
-            obj += functions.length(depot,vehicle_tour[0])
-            for i in range(0, len(vehicle_tour)-1):
-                obj += functions.length(vehicle_tour[i],vehicle_tour[i+1])
-            obj += functions.length(vehicle_tour[-1],depot)
-
-    # prepare the solution in the specified output format
-    outputData = '%.2f' % obj + ' ' + str(0) + '\n'
-    for v in range(0, vehicle_count):
-        outputData += str(depot.index) + ' ' + ' '.join([str(customer.index) for customer in vehicle_tours[v]]) + ' ' + str(depot.index) + '\n'
-
-    vpr_mip_gurobi.vpr_mip_gurobi(customers, vehicle_count)
-    
-    return outputData
-
+    return vehicle_tours
 
 import sys
 

@@ -11,7 +11,7 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "args": [
-                "vrp/data/vrp_5_4_1"
+                "C:/Users/gustavo.l.frizzone/Desktop/Estudos/DiscreteOptimization/vrp/data/vrp_5_4_1"
             ]
         }
     ]
