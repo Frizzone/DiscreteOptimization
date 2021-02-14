@@ -27,7 +27,7 @@ def solve_it(input_data):
     depot = customers[0]
 
     #vehicle_tours = buildTrivialSolution(customers, depot, vehicle_count, vehicle_capacity, customer_count)
-    vehicle_tours = vpr_mip_gurobi.vpr_mip_gurobi(customers, vehicle_count, vehicle_capacity)
+    vehicle_tours = vpr_mip_gurobi.vpr_mip_gurobi2(customers, vehicle_count, vehicle_capacity)
 
 
     # checks that the number of customers served is correct
