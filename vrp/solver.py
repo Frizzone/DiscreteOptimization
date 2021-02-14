@@ -26,9 +26,8 @@ def solve_it(input_data):
     #the depot is always the first customer in the input
     depot = customers[0]
 
-    #vehicle_tours = buildTrivialSolution(customers, depot, vehicle_count, vehicle_capacity, customer_count)
-    vehicle_tours = vpr_mip_gurobi.vpr_mip_gurobi2(customers, vehicle_count, vehicle_capacity)
-
+    vehicle_tours = vpr_mip_gurobi.vpr_mip_gurobi(customers, vehicle_count, vehicle_capacity)
+    functions.DrawNetwork(vehicle_tours, customers, vehicle_count)
 
     # checks that the number of customers served is correct
     #assert sum([len(v) for v in vehicle_tours]) == len(customers) - 1
@@ -50,30 +49,6 @@ def solve_it(input_data):
 
     
     return outputData
-
-def buildTrivialSolution(customers, depot, vehicle_count, vehicle_capacity, customer_count):
-    # build a trivial solution
-    # assign customers to vehicles starting by the largest customer demands
-    vehicle_tours = []
-    
-    remaining_customers = set(customers)
-    remaining_customers.remove(depot)
-    
-    for v in range(0, vehicle_count):
-        # print "Start Vehicle: ",v
-        vehicle_tours.append([])
-        capacity_remaining = vehicle_capacity
-        while sum([capacity_remaining >= customer.demand for customer in remaining_customers]) > 0:
-            used = set()
-            order = sorted(remaining_customers, key=lambda customer: -customer.demand*customer_count + customer.index)
-            for customer in order:
-                if capacity_remaining >= customer.demand:
-                    capacity_remaining -= customer.demand
-                    vehicle_tours[v].append(customer)
-                    # print '   add', ci, capacity_remaining
-                    used.add(customer)
-            remaining_customers -= used
-    return vehicle_tours
 
 import sys
 
