@@ -2,32 +2,9 @@ import math
 from collections import namedtuple
 import networkx as nx
 import matplotlib.pyplot as plt
-from random import seed
-from random import random
 import numpy as np
 
 Customer = namedtuple("Customer", ['index', 'demand', 'x', 'y'])
-
-def plot(tours, customers, vehicle_count):
-    G=nx.Graph()
-    
-    pos = {}
-    clist = []
-    for c in customers:
-        pos["c"+str(c.index)] = (c.location.x,c.location.y)
-        clist.append("c"+str(c.index))
-    
-    nx.draw_networkx_nodes(G,pos,node_size=1,nodelist=clist,node_color='b')
-
-  
-    edges = []
-    for v in range(vehicle_count):
-        for i in range(len(tours[v])):
-            if(i==0): edges.append(("c"+str(0), "c"+str(tours[v][i].index)))
-            else: edges.append("c"+str(tours[v][i-1].index), "c"+str(tours[v][i].index))
-        nx.draw_networkx_edges(G, pos, edgelist=edges)
-    
-    plt.show()
 
 def DrawNetwork(tours, customers, vehicle_count):
     G = nx.DiGraph()
@@ -63,3 +40,15 @@ def DrawNetwork(tours, customers, vehicle_count):
 
 def length(customer1, customer2):
     return math.sqrt((customer1.x - customer2.x)**2 + (customer1.y - customer2.y)**2)
+
+# calculate the cost of the solution; for each vehicle the length of the route
+def tourLen(vehicle_tours, vehicle_count, depot):
+    obj = 0
+    for v in range(0, vehicle_count):
+        vehicle_tour = vehicle_tours[v]
+        if len(vehicle_tour) > 0:
+            obj += length(depot,vehicle_tour[0])
+            for i in range(0, len(vehicle_tour)-1):
+                obj += length(vehicle_tour[i],vehicle_tour[i+1])
+            obj += length(vehicle_tour[-1],depot)
+    return obj

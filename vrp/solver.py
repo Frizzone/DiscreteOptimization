@@ -5,6 +5,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import functions
 import vpr_mip_gurobi
+import vpr_ga
 
 def solve_it(input_data):
     # Modify this code to run your optimization algorithm
@@ -26,21 +27,18 @@ def solve_it(input_data):
     #the depot is always the first customer in the input
     depot = customers[0]
 
-    vehicle_tours = vpr_mip_gurobi.vpr_mip_gurobi(customers, vehicle_count, vehicle_capacity)
+    #vehicle_tours = vpr_mip_gurobi.vpr_mip_gurobi(customers, vehicle_count, vehicle_capacity)
+    
+    vehicle_tours = vpr_ga.geneticAlgorithmPlot(customers=customers, vehicle_count=vehicle_count, vehicle_capacity=vehicle_capacity, popSize=100, eliteSize=20, mutationRate=0.01, generations=500)
+
+    
     functions.DrawNetwork(vehicle_tours, customers, vehicle_count)
 
     # checks that the number of customers served is correct
     #assert sum([len(v) for v in vehicle_tours]) == len(customers) - 1
 
     # calculate the cost of the solution; for each vehicle the length of the route
-    obj = 0
-    for v in range(0, vehicle_count):
-        vehicle_tour = vehicle_tours[v]
-        if len(vehicle_tour) > 0:
-            obj += functions.length(depot,vehicle_tour[0])
-            for i in range(0, len(vehicle_tour)-1):
-                obj += functions.length(vehicle_tour[i],vehicle_tour[i+1])
-            obj += functions.length(vehicle_tour[-1],depot)
+    obj = functions.tourLen(vehicle_tours, vehicle_count, depot)
 
     # prepare the solution in the specified output format
     outputData = '%.2f' % obj + ' ' + str(0) + '\n'

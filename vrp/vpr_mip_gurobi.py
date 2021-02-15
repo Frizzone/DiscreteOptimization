@@ -2,6 +2,8 @@ import gurobipy as gp
 from gurobipy import *
 import functions
 
+#model https://how-to.aimms.com/Articles/332/332-Formulation-CVRP.html
+#subtour https://how-to.aimms.com/Articles/332/332-Miller-Tucker-Zemlin-formulation.html
 def vpr_mip_gurobi(customers, vehicle_count, vehicle_capacity):
     try:
         
