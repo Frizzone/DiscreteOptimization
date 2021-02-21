@@ -32,7 +32,7 @@ def solve_it(input_data):
         vehicle_tours = vpr_mip_gurobi.vpr_mip_gurobi(customers, vehicle_count, vehicle_capacity)
     else:
         
-        vehicle_tours = vpr_ga.vpr_geneticAlgorithm(customers=customers, vehicle_count=vehicle_count, vehicle_capacity=vehicle_capacity, popSize=100, eliteSize=10, mutationRate=0.5, generations=1000)
+        vehicle_tours = vpr_ga.vpr_geneticAlgorithm(customers=customers, vehicle_count=vehicle_count, vehicle_capacity=vehicle_capacity, popSize=100, eliteSize=10, mutationRate=0.1, generations=200)
         
         #local search for individual routes
         for v in range(vehicle_count):
@@ -50,7 +50,7 @@ def solve_it(input_data):
     outputData = '%.2f' % obj + ' ' + str(0) + '\n'
     for v in range(0, vehicle_count):
         #outputData += str(depot.index) + ' ' + ' '.join([str(customer.index) for customer in vehicle_tours[v]]) + ' ' + str(depot.index) + '\n'
-        outputData += ' '.join([str(customer.index) for customer in vehicle_tours[v]]) + ' ' + str(depot.index) + '\n'
+        outputData += ' '.join([str(customer.index) for customer in vehicle_tours[v]]) + '\n'
 
     
     return outputData

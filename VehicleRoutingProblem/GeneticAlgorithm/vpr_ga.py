@@ -1,63 +1,7 @@
 import numpy as np, random, operator, pandas as pd, matplotlib.pyplot as plt, math
 import functions
+import GeneticAlgorithm.individual as ind
 _PLOT_PROGRESS = True
-
-class Individual:
-    def __init__(self, customers, vehicle_count, vehicle_capacity):
-        self.vehicle_tours = []
-        self.customers = customers
-        self.vehicle_count = vehicle_count
-        self.vehicle_capacities = [vehicle_capacity] * vehicle_count
-        self.vehicle_capacity = vehicle_capacity
-        self.array_rep = [-1] * len(customers) * vehicle_count
-        self.distance = 0
-        self.fitness= 0.0
-        
-        for i in range(vehicle_count): 
-            self.vehicle_tours.append([])
-            self.vehicle_tours[i].append(customers[0])
-            self.array_rep[i*(len(self.customers))] = 0
-    
-    def routeDistance(self):
-        if self.distance ==0:
-            self.distance = functions.tourLen(self.vehicle_tours, self.vehicle_count, self.customers[0])
-        return self.distance
-    
-    def routeFitness(self):
-        if self.fitness == 0:
-            self.fitness = 1 / float(self.routeDistance())
-        return self.fitness
-    
-    def addItemRoute(self, vehicle_id, customer):
-        self.vehicle_capacities[vehicle_id] -= customer.demand
-        self.vehicle_tours[vehicle_id].append(customer)
-        self.array_rep[customer.index + vehicle_id*(len(self.customers))] = customer.index
-    
-    def compress_array_rep(self):
-        self.array_rep = [i for i in self.array_rep if i != -1]
-        
-    def swap(self, swappedC, swappedK, swapWithC, swapWithK):
-        c1 = self.vehicle_tours[swappedK][swappedC]
-        c2 = self.vehicle_tours[swapWithK][swapWithC]
-        
-        k1 = self.vehicle_capacities[swappedK] + c2.demand - c1.demand
-        k2 = self.vehicle_capacities[swapWithK] + c1.demand - c2.demand
-        
-        if(k1 < 0 or k2 < 0 ): return False
-
-        
-        self.vehicle_tours[swappedK][swappedC] = c2
-        self.vehicle_tours[swapWithK][swapWithC] = c1
-        self.vehicle_capacities[swappedK] = k1
-        self.vehicle_capacities[swapWithK] = k2
-        
-        return True
-    
-    def search(c_index):
-        for v in len(self.vehicle_tours):
-            for c in  len(self.vehicle_tours[v]):
-                if(self.vehicle_tours[c][v].index == c_index): return (v,c)
-        return None
 
 def vpr_geneticAlgorithm(customers, vehicle_count, vehicle_capacity, popSize, eliteSize, mutationRate, generations):
     population = initialPopulation(popSize, customers, vehicle_count, vehicle_capacity)
@@ -65,7 +9,7 @@ def vpr_geneticAlgorithm(customers, vehicle_count, vehicle_capacity, popSize, el
     if(_PLOT_PROGRESS): progress.append(1 / rankRoutes(population)[0][1])
     
     for i in range(0, generations):
-        population = nextGeneration(population, customers, eliteSize, mutationRate, vehicle_count)
+        population = nextGeneration(population, eliteSize, mutationRate)
         if(_PLOT_PROGRESS): progress.append(1 / rankRoutes(population)[0][1])
 
     if(_PLOT_PROGRESS):  
@@ -97,7 +41,7 @@ def initialPopulation(popSize, customers, vehicle_count, vehicle_capacity):
     # r2 -> decide para cada passo qual n-ésimo melhor pegar
 def createTours(customers, vehicle_count, vehicle_capacity):
     customerscopy = customers.copy()
-    individual = Individual(customers, vehicle_count, vehicle_capacity)
+    individual = ind.Individual(customers, vehicle_count, vehicle_capacity)
 
     while(len(customerscopy)>=2):
         nextCustomer = customerscopy.pop(random.randint(1, len(customerscopy)-1))
@@ -112,10 +56,12 @@ def createTours(customers, vehicle_count, vehicle_capacity):
             if(individual.vehicle_capacities[nextVehicle] >= nextCustomer.demand):
                 individual.addItemRoute(nextVehicle, nextCustomer)
                 finish = True
-    individual.compress_array_rep()
+    
+    for v_id in range(vehicle_count): individual.addItemRoute(v_id, customers[0])
+    individual.compress_array_rep()        
     return individual
 
-def nextGeneration(currentGen, customers, eliteSize, mutationRate, vehicle_count):
+def nextGeneration(currentGen, eliteSize, mutationRate):
     popRanked = rankRoutes(currentGen)
     selectionResults = selection(popRanked, eliteSize)
     matingpool = matingPool(currentGen, selectionResults)
@@ -167,10 +113,10 @@ def breedPopulation(matingpool, eliteSize):
 
 # totally random crossover
 
-# -> Best route of parents
-#-> greedy route 2
+# -> melhor rota dos pais
+#-> segunda melhor rota dos pais: ind repetidos serão escolhidos pelo método guloso
 # -> greedy route 3
-def breed(parent1, parent2):
+def breed2(parent1, parent2):
     customerscopy = parent1.customers.copy()
     child = Individual(parent1.customers, parent1.vehicle_count, parent1.vehicle_capacity)
 
@@ -187,9 +133,47 @@ def breed(parent1, parent2):
             if(child.vehicle_capacities[nextVehicle] >= nextCustomer.demand):
                 child.addItemRoute(nextVehicle, nextCustomer)
                 finish = True
+    for v_id in range(parent1.vehicle_count): child.addItemRoute(v_id, parent1.customers[0])
     child.compress_array_rep()
-    
     return child
+
+def breed(parent1, parent2):
+    child = ind.Individual(parent1.customers, parent1.vehicle_count, parent1.vehicle_capacity)
+        
+    #get the best tour from parents
+    (bestTour, bestLen) = functions.bestTour(parent1.vehicle_tours + parent2.vehicle_tours, parent1.customers[0])
+    for c in bestTour: 
+        if(c.index!=0): 
+            child.addItemRoute(0, c)
+    child.addItemRoute(0, parent1.customers[0])
+    
+    for vehicle_id in range(1, parent1.vehicle_count):
+        randomParent = random.randint(0, 1)
+        if(randomParent==0):
+            breedRouteToChild(parent1, child, vehicle_id)
+        else:
+            breedRouteToChild(parent2, child, vehicle_id)
+    
+    if(min(child.selected) == 0): 
+        return parent1
+    return child
+
+#get a route, repeated customers will be replaced by the nearest customer
+def breedRouteToChild(parent, child, vehicle_id):
+    randomTour = int(random.random() * len(parent.vehicle_tours))
+    for c in parent.vehicle_tours[randomTour]:
+        if(c.index !=0 and child.selected[c.index]==0):
+            child.addItemRoute(vehicle_id, c)
+        else:
+            c = functions.nearestNode(parent.customers, child.vehicle_tours[vehicle_id][-1], child.selected)
+            child.addItemRoute(vehicle_id, c)
+    
+    finish = False        
+    while(not finish):
+        c = functions.nearestNode(parent.customers, child.vehicle_tours[vehicle_id][-1], child.selected)
+        if(c.index == 0): finish = True
+        else: finish = not (child.addItemRoute(vehicle_id, c))
+        
 
 #for each individual in population 
     # for each gene
@@ -205,7 +189,7 @@ def mutatePopulation(population, mutationRate):
 
 def mutate(individual, mutationRate):
     for swappedK in range(1, len(individual.vehicle_tours)):
-        for swappedC in range(1, len(individual.vehicle_tours[swappedK])-2): #to do ir até o penultimo
+        for swappedC in range(1, len(individual.vehicle_tours[swappedK])-1):
             if(random.random() < mutationRate):
                 outerSwap(individual, swappedK, swappedC)
             if(random.random() < mutationRate):
@@ -215,13 +199,18 @@ def mutate(individual, mutationRate):
 
 #inner swap
 def innerSwap(individual, index_v, index_c):
+    swap = False
     route = individual.vehicle_tours[index_v]
     route_len = len(route)
-    if(index_c < route_len-2 and index_c>=1): #to-do: ir até o penultimo, considerando que o último é 0
-        for index_c2 in range(1, route_len-2): #to-do: ir até o penultimo, considerando que o último é 0
+    if(index_c < route_len-1 and index_c>=1):
+        for index_c2 in range(1, route_len-1):
             if(isInnerSwapImprovement(index_c, index_c2, route) == True): 
                 if(index_c<index_c2): innerSwapItem(route, index_c, index_c2)
                 elif(index_c>index_c2): innerSwapItem(route, index_c2, index_c)
+                swap = True
+    if(swap): 
+        individual.distance = 0
+        individual.fitness= 0.0
 
 def isInnerSwapImprovement(i, j, route):
     actual = length(route[i], route[i+1]) +  length(route[j], route[j+1])
@@ -235,14 +224,20 @@ def innerSwapItem(solution, start, end):
     
 #outer swap
 def outerSwap(individual, index_v, index_c):
+    swap = False
     index_v2 = index_v
     while index_v2 == index_v: index_v2 = random.randint(0,len(individual.vehicle_tours)-1)
     route1 = individual.vehicle_tours[index_v]
     route2 = individual.vehicle_tours[index_v2]
     route2_len = len(route2)
-    for index_c2 in range(1, route2_len-2): #to-do: ir até o penultimo, considerando que o último é 0
+    for index_c2 in range(1, route2_len-1):
         if(isOuterSwapImprovement(index_c, index_c2, route1, route2) == True): 
             individual.swap(index_c, index_v, index_c2, index_v2)
+            swap = True
+    if(swap): 
+        individual.distance = 0
+        individual.fitness= 0.0
+    
 
 def isOuterSwapImprovement(index__c1, index__c2, route1, route2):
     actual = length(route1[index__c1-1], route1[index__c1]) +  length(route1[index__c1], route1[index__c1+1])
@@ -251,3 +246,27 @@ def isOuterSwapImprovement(index__c1, index__c2, route1, route2):
           
 def length(customer1, customer2):
     return math.sqrt((customer1.x - customer2.x)**2 + (customer1.y - customer2.y)**2)
+
+
+def createTours2(customers, vehicle_count, vehicle_capacity):
+    customerscopy = customers.copy()
+    individual = Individual(customers, vehicle_count, vehicle_capacity)
+
+    while(len(customerscopy)>=2):
+        nextVehicle = int(random.random() * vehicle_count)
+        nextCustomer = customerscopy.pop(random.randint(1, len(customerscopy)-1))
+        
+        dontHaveSpace = []
+        for c in individual.vehicle_capacities: dontHaveSpace.append(c < nextCustomer.demand)
+        while(all(dontHaveSpace)): return None
+        
+        finish = False
+        while(not finish):
+            if(individual.vehicle_capacities[nextVehicle] >= nextCustomer.demand):
+                individual.addItemRoute(nextVehicle, nextCustomer)
+                finish = True
+                
+                
+                
+    individual.compress_array_rep()
+    return individual
