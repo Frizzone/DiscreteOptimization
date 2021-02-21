@@ -1,11 +1,12 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-
+import sys
 import networkx as nx
 import matplotlib.pyplot as plt
 import functions
-import GeneticAlgorithm.vpr_mip_gurobi
-import vpr_ga
+import MixIntegerProgram.vpr_mip_gurobi as vpr_mip_gurobi
+import GeneticAlgorithm.vpr_ga as vpr_ga
+import LocalSearch.twoOptHeurisct as twoOptHeurisct
 
 def solve_it(input_data):
     # Modify this code to run your optimization algorithm
@@ -30,10 +31,14 @@ def solve_it(input_data):
     if(customer_count < 25):
         vehicle_tours = vpr_mip_gurobi.vpr_mip_gurobi(customers, vehicle_count, vehicle_capacity)
     else:
-        vehicle_tours = vpr_ga.vpr_geneticAlgorithm(customers=customers, vehicle_count=vehicle_count, vehicle_capacity=vehicle_capacity, popSize=100, eliteSize=10, mutationRate=0.1, generations=500)
-
+        
+        vehicle_tours = vpr_ga.vpr_geneticAlgorithm(customers=customers, vehicle_count=vehicle_count, vehicle_capacity=vehicle_capacity, popSize=100, eliteSize=10, mutationRate=0.5, generations=1000)
+        
+        #local search for individual routes
+        for v in range(vehicle_count):
+            vehicle_tours[v] = twoOptHeurisct.twoOptHeurisct(vehicle_tours[v])
     
-    functions.DrawNetwork(vehicle_tours, customers, vehicle_count)
+    #functions.DrawNetwork(vehicle_tours, customers, vehicle_count)
 
     # checks that the number of customers served is correct
     #assert sum([len(v) for v in vehicle_tours]) == len(customers) - 1

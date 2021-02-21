@@ -1,7 +1,6 @@
+import numpy as np, random, operator, pandas as pd, matplotlib.pyplot as plt, math
 import functions
-import numpy as np, random, operator, pandas as pd, matplotlib.pyplot as plt
 _PLOT_PROGRESS = True
-import twoOptHeurisct
 
 class Individual:
     def __init__(self, customers, vehicle_count, vehicle_capacity):
@@ -75,12 +74,7 @@ def vpr_geneticAlgorithm(customers, vehicle_count, vehicle_capacity, popSize, el
         plt.xlabel('Generation')
         plt.show()
     
-    #busca local em cada veículo
     vehicle_tours = population[0].vehicle_tours
-    for v in range(vehicle_count):
-        vehicle_tours[v] = twoOptHeurisct.twoOptHeurisct(vehicle_tours[v],  customers, len(vehicle_tours[v]))
-    
-    
     return vehicle_tours
 
 #Initial population
@@ -97,6 +91,10 @@ def initialPopulation(popSize, customers, vehicle_count, vehicle_capacity):
     return population
 
 #Create random tours
+# usar abordagem para uma algorítimo guloso com randomizações
+    # r1 -> decide qual o veículo v
+    # r1 -> decide o número de passos do veículo v
+    # r2 -> decide para cada passo qual n-ésimo melhor pegar
 def createTours(customers, vehicle_count, vehicle_capacity):
     customerscopy = customers.copy()
     individual = Individual(customers, vehicle_count, vehicle_capacity)
@@ -168,6 +166,10 @@ def breedPopulation(matingpool, eliteSize):
 
 
 # totally random crossover
+
+# -> Best route of parents
+#-> greedy route 2
+# -> greedy route 3
 def breed(parent1, parent2):
     customerscopy = parent1.customers.copy()
     child = Individual(parent1.customers, parent1.vehicle_count, parent1.vehicle_capacity)
@@ -203,12 +205,49 @@ def mutatePopulation(population, mutationRate):
 
 def mutate(individual, mutationRate):
     for swappedK in range(1, len(individual.vehicle_tours)):
-        for swappedC in range(1, len(individual.vehicle_tours[swappedK])):
+        for swappedC in range(1, len(individual.vehicle_tours[swappedK])-2): #to do ir até o penultimo
             if(random.random() < mutationRate):
-                swapWithK = random.randint(1, len(individual.vehicle_tours)-1)
-                swapWithC = random.randint(1, len(individual.vehicle_tours[swapWithK])-1)
-                individual.swap(swappedC, swappedK, swapWithC, swapWithK)
+                outerSwap(individual, swappedK, swappedC)
             if(random.random() < mutationRate):
-                twoOptHeurisct.partialInnerTwoOptHeurisct(individual.vehicle_tours[swappedK], swappedC,  individual.customers, len(individual.vehicle_tours[swappedK]))
+                innerSwap(individual, swappedK, swappedC)
                 
     return individual
+
+#inner swap
+def innerSwap(individual, index_v, index_c):
+    route = individual.vehicle_tours[index_v]
+    route_len = len(route)
+    if(index_c < route_len-2 and index_c>=1): #to-do: ir até o penultimo, considerando que o último é 0
+        for index_c2 in range(1, route_len-2): #to-do: ir até o penultimo, considerando que o último é 0
+            if(isInnerSwapImprovement(index_c, index_c2, route) == True): 
+                if(index_c<index_c2): innerSwapItem(route, index_c, index_c2)
+                elif(index_c>index_c2): innerSwapItem(route, index_c2, index_c)
+
+def isInnerSwapImprovement(i, j, route):
+    actual = length(route[i], route[i+1]) +  length(route[j], route[j+1])
+    new = length(route[i], route[j]) +  length(route[i+1], route[j+1])
+    return new < actual
+
+# A->B->C->D->E (A->B ..... D->E)
+# A->D->C->B->E (A->D-> reverse(......) ->B->E)
+def innerSwapItem(solution, start, end):
+    solution[start+1:end+1] = reversed(solution[start+1:end+1])
+    
+#outer swap
+def outerSwap(individual, index_v, index_c):
+    index_v2 = index_v
+    while index_v2 == index_v: index_v2 = random.randint(0,len(individual.vehicle_tours)-1)
+    route1 = individual.vehicle_tours[index_v]
+    route2 = individual.vehicle_tours[index_v2]
+    route2_len = len(route2)
+    for index_c2 in range(1, route2_len-2): #to-do: ir até o penultimo, considerando que o último é 0
+        if(isOuterSwapImprovement(index_c, index_c2, route1, route2) == True): 
+            individual.swap(index_c, index_v, index_c2, index_v2)
+
+def isOuterSwapImprovement(index__c1, index__c2, route1, route2):
+    actual = length(route1[index__c1-1], route1[index__c1]) +  length(route1[index__c1], route1[index__c1+1])
+    new = length(route1[index__c1-1], route2[index__c2]) +  length(route2[index__c2], route1[index__c1+1])
+    return new < actual
+          
+def length(customer1, customer2):
+    return math.sqrt((customer1.x - customer2.x)**2 + (customer1.y - customer2.y)**2)
