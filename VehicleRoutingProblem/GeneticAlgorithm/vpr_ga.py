@@ -35,30 +35,26 @@ def initialPopulation(popSize, customers, vehicle_count, vehicle_capacity):
     return population
 
 #Create random tours
-# usar abordagem para uma algorítimo guloso com randomizações
-    # r1 -> decide qual o veículo v
-    # r1 -> decide o número de passos do veículo v
-    # r2 -> decide para cada passo qual n-ésimo melhor pegar
 def createTours(customers, vehicle_count, vehicle_capacity):
-    customerscopy = customers.copy()
     individual = ind.Individual(customers, vehicle_count, vehicle_capacity)
-
-    while(len(customerscopy)>=2):
-        nextCustomer = customerscopy.pop(random.randint(1, len(customerscopy)-1))
-        
-        dontHaveSpace = []
-        for c in individual.vehicle_capacities: dontHaveSpace.append(c < nextCustomer.demand)
-        while(all(dontHaveSpace)): return None
-        
-        finish = False
-        while(not finish):
-            nextVehicle = int(random.random() * vehicle_count)
-            if(individual.vehicle_capacities[nextVehicle] >= nextCustomer.demand):
-                individual.addItemRoute(nextVehicle, nextCustomer)
-                finish = True
-    
-    for v_id in range(vehicle_count): individual.addItemRoute(v_id, customers[0])
-    individual.compress_array_rep()        
+    customer_count = len(customers)
+    remaining_customers = customers[1:].copy()
+    random.shuffle(remaining_customers)
+    for v in range(0, vehicle_count):
+        capacity_remaining = vehicle_capacity
+        while sum([capacity_remaining >= customer.demand for customer in remaining_customers]) > 0:
+            #order = sorted(remaining_customers, key=lambda customer: -customer.demand*customer_count + customer.index)
+            index = 0
+            for customer in remaining_customers:
+                if capacity_remaining >= customer.demand:
+                    capacity_remaining -= customer.demand
+                    insert = individual.addItemRoute(v, customer)
+                    remaining_customers.pop(index)
+                    if(not insert): print(str(customer.index))
+                index=index+1
+                
+    if(min(individual.selected)== 0): return None
+    individual.compress_array_rep()   
     return individual
 
 def nextGeneration(currentGen, eliteSize, mutationRate):
@@ -111,32 +107,9 @@ def breedPopulation(matingpool, eliteSize):
     return children
 
 
-# totally random crossover
-
-# -> melhor rota dos pais
-#-> segunda melhor rota dos pais: ind repetidos serão escolhidos pelo método guloso
-# -> greedy route 3
-def breed2(parent1, parent2):
-    customerscopy = parent1.customers.copy()
-    child = Individual(parent1.customers, parent1.vehicle_count, parent1.vehicle_capacity)
-
-    while(len(customerscopy)>=2):
-        nextCustomer = customerscopy.pop(random.randint(1, len(customerscopy)-1))
-        
-        dontHaveSpace = []
-        for c in child.vehicle_capacities: dontHaveSpace.append(c < nextCustomer.demand)
-        while(all(dontHaveSpace)): return parent2
-            
-        finish = False
-        while(not finish):
-            nextVehicle = int(random.random() * parent1.vehicle_count)
-            if(child.vehicle_capacities[nextVehicle] >= nextCustomer.demand):
-                child.addItemRoute(nextVehicle, nextCustomer)
-                finish = True
-    for v_id in range(parent1.vehicle_count): child.addItemRoute(v_id, parent1.customers[0])
-    child.compress_array_rep()
-    return child
-
+#breed
+#firts: get best route of the parents
+#second: get elements of the parent route, if already added get the nearest customer
 def breed(parent1, parent2):
     child = ind.Individual(parent1.customers, parent1.vehicle_count, parent1.vehicle_capacity)
         
@@ -173,6 +146,8 @@ def breedRouteToChild(parent, child, vehicle_id):
         c = functions.nearestNode(parent.customers, child.vehicle_tours[vehicle_id][-1], child.selected)
         if(c.index == 0): finish = True
         else: finish = not (child.addItemRoute(vehicle_id, c))
+    
+    child.addItemRoute(vehicle_id, child.customers[0])
         
 
 #for each individual in population 
@@ -237,7 +212,6 @@ def outerSwap(individual, index_v, index_c):
     if(swap): 
         individual.distance = 0
         individual.fitness= 0.0
-    
 
 def isOuterSwapImprovement(index__c1, index__c2, route1, route2):
     actual = length(route1[index__c1-1], route1[index__c1]) +  length(route1[index__c1], route1[index__c1+1])
@@ -246,27 +220,3 @@ def isOuterSwapImprovement(index__c1, index__c2, route1, route2):
           
 def length(customer1, customer2):
     return math.sqrt((customer1.x - customer2.x)**2 + (customer1.y - customer2.y)**2)
-
-
-def createTours2(customers, vehicle_count, vehicle_capacity):
-    customerscopy = customers.copy()
-    individual = Individual(customers, vehicle_count, vehicle_capacity)
-
-    while(len(customerscopy)>=2):
-        nextVehicle = int(random.random() * vehicle_count)
-        nextCustomer = customerscopy.pop(random.randint(1, len(customerscopy)-1))
-        
-        dontHaveSpace = []
-        for c in individual.vehicle_capacities: dontHaveSpace.append(c < nextCustomer.demand)
-        while(all(dontHaveSpace)): return None
-        
-        finish = False
-        while(not finish):
-            if(individual.vehicle_capacities[nextVehicle] >= nextCustomer.demand):
-                individual.addItemRoute(nextVehicle, nextCustomer)
-                finish = True
-                
-                
-                
-    individual.compress_array_rep()
-    return individual

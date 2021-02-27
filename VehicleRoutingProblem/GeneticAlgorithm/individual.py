@@ -16,6 +16,7 @@ class Individual:
         for i in range(vehicle_count): 
             self.vehicle_tours.append([])
             self.vehicle_tours[i].append(customers[0])
+            self.selected[0] = 1
             self.array_rep[i*(len(self.customers))] = 0
     
     def routeDistance(self):
@@ -31,7 +32,7 @@ class Individual:
     def addItemRoute(self, vehicle_id, customer):
         newcapacity = self.vehicle_capacities[vehicle_id] - customer.demand
         
-        if(newcapacity > 0): 
+        if(newcapacity >= 0): 
             self.vehicle_capacities[vehicle_id] = newcapacity
             self.vehicle_tours[vehicle_id].append(customer)
             self.array_rep[customer.index + vehicle_id*(len(self.customers))] = customer.index

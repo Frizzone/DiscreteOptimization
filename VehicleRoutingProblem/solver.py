@@ -28,7 +28,7 @@ def solve_it(input_data):
     #the depot is always the first customer in the input
     depot = customers[0]
 
-    if(customer_count < 25):
+    if(customer_count < 30):
         vehicle_tours = vpr_mip_gurobi.vpr_mip_gurobi(customers, vehicle_count, vehicle_capacity)
     else:
         

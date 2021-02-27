@@ -22,12 +22,12 @@ def solve_it(input_data):
 
 
 
-    #if(nodeCount>1000):
-    #    solution = twoOptHeurisct.twoOptHeurisct(points, nodeCount)
-    #else:
-    #    solution = twoOptIterateLS.twoOptIterateLS(points, nodeCount, 60*5)
+    if(nodeCount>1000):
+        solution = twoOptHeurisct.twoOptHeurisct(points, nodeCount)
+    else:
+        solution = twoOptIterateLS.twoOptIterateLS(points, nodeCount, 60*5)
 
-    solution = threeOptHeurisct.threeOptHeurisct(points, nodeCount)
+    #solution = threeOptHeurisct.threeOptHeurisct(points, nodeCount)
 
     # calculate the length of the tour
     obj = functions.tourLength(solution, points, nodeCount)
