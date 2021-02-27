@@ -43,7 +43,6 @@ def createTours(customers, vehicle_count, vehicle_capacity):
     for v in range(0, vehicle_count):
         capacity_remaining = vehicle_capacity
         while sum([capacity_remaining >= customer.demand for customer in remaining_customers]) > 0:
-            #order = sorted(remaining_customers, key=lambda customer: -customer.demand*customer_count + customer.index)
             index = 0
             for customer in remaining_customers:
                 if capacity_remaining >= customer.demand:
@@ -53,8 +52,8 @@ def createTours(customers, vehicle_count, vehicle_capacity):
                     if(not insert): print(str(customer.index))
                 index=index+1
                 
+    for v_id in range(vehicle_count): individual.addItemRoute(v_id, customers[0])
     if(min(individual.selected)== 0): return None
-    individual.compress_array_rep()   
     return individual
 
 def nextGeneration(currentGen, eliteSize, mutationRate):

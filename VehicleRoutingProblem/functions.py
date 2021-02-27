@@ -30,7 +30,7 @@ def DrawNetwork(tours, customers, vehicle_count):
                 G.add_edge(tours[vehicle_id][n-1].index, tours[vehicle_id][n].index)
                 nx.draw(G, nx.get_node_attributes(G, 'pos'), nodelist=node, edgelist=e, with_labels=True,
                         node_color=cl, width=2, edge_color=cl,
-                        style='dashed', font_color='w', font_size=12, font_family='sans-serif')
+                        style='dashed', font_color='w', font_size=6, font_family='sans-serif')
             n += 1
         x += 1
     

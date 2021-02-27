@@ -38,7 +38,7 @@ def solve_it(input_data):
         for v in range(vehicle_count):
             vehicle_tours[v] = twoOptHeurisct.twoOptHeurisct(vehicle_tours[v])
     
-    #functions.DrawNetwork(vehicle_tours, customers, vehicle_count)
+    functions.DrawNetwork(vehicle_tours, customers, vehicle_count)
 
     # checks that the number of customers served is correct
     #assert sum([len(v) for v in vehicle_tours]) == len(customers) - 1
