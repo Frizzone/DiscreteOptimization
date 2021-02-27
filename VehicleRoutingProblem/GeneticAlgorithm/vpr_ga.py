@@ -19,6 +19,7 @@ def vpr_geneticAlgorithm(customers, vehicle_count, vehicle_capacity, popSize, el
         plt.show()
     
     vehicle_tours = population[0].vehicle_tours
+    population[0].testConstraints("Teste Final")
     return vehicle_tours
 
 #Initial population
@@ -38,19 +39,20 @@ def initialPopulation(popSize, customers, vehicle_count, vehicle_capacity):
 def createTours(customers, vehicle_count, vehicle_capacity):
     individual = ind.Individual(customers, vehicle_count, vehicle_capacity)
     customer_count = len(customers)
-    remaining_customers = customers[1:].copy()
-    random.shuffle(remaining_customers)
+    remaining_customers = set(customers[1:])
     for v in range(0, vehicle_count):
         capacity_remaining = vehicle_capacity
         while sum([capacity_remaining >= customer.demand for customer in remaining_customers]) > 0:
-            index = 0
-            for customer in remaining_customers:
+            used = set()
+            shuffled_customers = list(remaining_customers)
+            random.shuffle(shuffled_customers)
+            for customer in shuffled_customers:
                 if capacity_remaining >= customer.demand:
                     capacity_remaining -= customer.demand
                     insert = individual.addItemRoute(v, customer)
-                    remaining_customers.pop(index)
                     if(not insert): print(str(customer.index))
-                index=index+1
+                    used.add(customer)
+            remaining_customers -= used
                 
     for v_id in range(vehicle_count): individual.addItemRoute(v_id, customers[0])
     if(min(individual.selected)== 0): return None
@@ -103,6 +105,7 @@ def breedPopulation(matingpool, eliteSize):
     for i in range(0, length):
         child = breed(pool[i], pool[len(matingpool)-i-1])
         children.append(child)
+        
     return children
 
 
@@ -128,6 +131,7 @@ def breed(parent1, parent2):
     
     if(min(child.selected) == 0): 
         return parent1
+    
     return child
 
 #get a route, repeated customers will be replaced by the nearest customer
@@ -168,7 +172,7 @@ def mutate(individual, mutationRate):
                 individual.outerSwap(swappedK, swappedC)
             if(random.random() < mutationRate):
                 individual.innerSwap(swappedK, swappedC)
-                
+    
     return individual
           
 def length(customer1, customer2):

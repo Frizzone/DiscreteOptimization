@@ -40,8 +40,8 @@ class Individual:
         c1 = self.vehicle_tours[swappedK][swappedC]
         c2 = self.vehicle_tours[swapWithK][swapWithC]
         
-        k1 = self.vehicle_capacities[swappedK] + c2.demand - c1.demand
-        k2 = self.vehicle_capacities[swapWithK] + c1.demand - c2.demand
+        k1 = self.vehicle_capacities[swappedK] - c2.demand + c1.demand
+        k2 = self.vehicle_capacities[swapWithK] - c1.demand + c2.demand
         
         if(k1 < 0 or k2 < 0 ): return False
 
@@ -97,14 +97,20 @@ class Individual:
         new = functions.length(route1[index__c1-1], route2[index__c2]) +  functions.length(route2[index__c2], route1[index__c1+1])
         return new < actual
 
-    def testConstraints(self):
-        customers = set()
+    def testConstraints(self, name):
+        self.selected = [0] * len(self.customers)
         self.vehicle_capacities = [self.vehicle_capacity] * self.vehicle_count
         v_index = 0
         for tour in self.vehicle_tours:
             for c in tour:
+                if(self.selected[c.index] == 1 and c.index != 0): 
+                    print (name + " customer" + str(c.index) + " is repeated")
+                if(self.vehicle_capacities[v_index] - c.demand < 0): 
+                    print (name + " capacity " + str(v_index) + " is " + str((self.vehicle_capacities[v_index] - c.demand)))                
                 self.vehicle_capacities[v_index] -= c.demand
-                assert self.vehicle_capacities[v_index] > 0
-
+                self.selected[c.index] = 1 
+            v_index = v_index + 1
+        if (min(self.selected) == 0): 
+            print (name + " Missing customers" + str(self.selected))
             
         
