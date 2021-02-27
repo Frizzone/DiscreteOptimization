@@ -93,9 +93,11 @@ class Individual:
         if(swap): self.resetDistanceCalcultion()
 
     def isOuterSwapImprovement(self, index__c1, index__c2, route1, route2):
-        actual = functions.length(route1[index__c1-1], route1[index__c1]) +  functions.length(route1[index__c1], route1[index__c1+1])
-        new = functions.length(route1[index__c1-1], route2[index__c2]) +  functions.length(route2[index__c2], route1[index__c1+1])
-        return new < actual
+        actualr1 = functions.length(route1[index__c1-1], route1[index__c1]) +  functions.length(route1[index__c1], route1[index__c1+1])
+        newr1 = functions.length(route1[index__c1-1], route2[index__c2]) +  functions.length(route2[index__c2], route1[index__c1+1])
+        actualr2 = functions.length(route2[index__c2-1], route2[index__c2]) +  functions.length(route2[index__c2], route2[index__c2+1])
+        newr2 = functions.length(route2[index__c2-1], route1[index__c1]) +  functions.length(route1[index__c1], route2[index__c2+1])
+        return (newr1 < actualr1 and newr2 < actualr2)
 
     def testConstraints(self, name):
         self.selected = [0] * len(self.customers)
@@ -108,8 +110,10 @@ class Individual:
                 if(self.vehicle_capacities[v_index] - c.demand < 0): 
                     print (name + " capacity " + str(v_index) + " is " + str((self.vehicle_capacities[v_index] - c.demand)))                
                 self.vehicle_capacities[v_index] -= c.demand
-                self.selected[c.index] = 1 
+                self.selected[c.index] = self.selected[c.index] + 1
             v_index = v_index + 1
+        if(self.selected[0] != self.vehicle_count*2): 
+            print (name + " The number of customer 0 need to be " + str(self.vehicle_count*2) + ".")
         if (min(self.selected) == 0): 
             print (name + " Missing customers" + str(self.selected))
             

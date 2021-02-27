@@ -6,7 +6,8 @@ _PLOT_PROGRESS = True
 def vpr_geneticAlgorithm(customers, vehicle_count, vehicle_capacity, popSize, eliteSize, mutationRate, generations):
     population = initialPopulation(popSize, customers, vehicle_count, vehicle_capacity)
     progress = []
-    if(_PLOT_PROGRESS): progress.append(1 / rankRoutes(population)[0][1])
+    if(_PLOT_PROGRESS): 
+        progress.append(1 / rankRoutes(population)[0][1])
     
     for i in range(0, generations):
         population = nextGeneration(population, eliteSize, mutationRate)
@@ -56,6 +57,7 @@ def createTours(customers, vehicle_count, vehicle_capacity):
                 
     for v_id in range(vehicle_count): individual.addItemRoute(v_id, customers[0])
     if(min(individual.selected)== 0): return None
+    #individual.testConstraints("create")
     return individual
 
 def nextGeneration(currentGen, eliteSize, mutationRate):
@@ -131,7 +133,7 @@ def breed(parent1, parent2):
     
     if(min(child.selected) == 0): 
         return parent1
-    
+    #child.testConstraints("breed")
     return child
 
 #get a route, repeated customers will be replaced by the nearest customer
@@ -142,12 +144,12 @@ def breedRouteToChild(parent, child, vehicle_id):
             child.addItemRoute(vehicle_id, c)
         else:
             c = functions.nearestNode(parent.customers, child.vehicle_tours[vehicle_id][-1], child.selected)
-            child.addItemRoute(vehicle_id, c)
+            if(c != None): child.addItemRoute(vehicle_id, c)
     
     finish = False        
     while(not finish):
         c = functions.nearestNode(parent.customers, child.vehicle_tours[vehicle_id][-1], child.selected)
-        if(c.index == 0): finish = True
+        if(c == None): finish = True
         else: finish = not (child.addItemRoute(vehicle_id, c))
     
     child.addItemRoute(vehicle_id, child.customers[0])
@@ -159,10 +161,13 @@ def breedRouteToChild(parent, child, vehicle_id):
 def mutatePopulation(population, mutationRate):
     #return population
     mutatedPop = []
-    
+    popRanked = rankRoutes(population)
     for ind in range(0, len(population)):
-        mutatedInd = mutate(population[ind], mutationRate)
-        mutatedPop.append(mutatedInd)
+        if (ind == popRanked[0][0]): 
+            mutatedPop.append(population[ind])
+        else: 
+            mutatedInd = mutate(population[ind], mutationRate)
+            mutatedPop.append(mutatedInd)
     return mutatedPop
 
 def mutate(individual, mutationRate):
@@ -172,7 +177,7 @@ def mutate(individual, mutationRate):
                 individual.outerSwap(swappedK, swappedC)
             if(random.random() < mutationRate):
                 individual.innerSwap(swappedK, swappedC)
-    
+    #individual.testConstraints("mutate")
     return individual
           
 def length(customer1, customer2):

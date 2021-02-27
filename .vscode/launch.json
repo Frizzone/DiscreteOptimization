@@ -11,7 +11,7 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "args": [
-                "C:/Users/gustavo.l.frizzone/Desktop/Estudos/DiscreteOptimization/VehicleRoutingProblem/data/vrp_200_16_1"
+                "C:/Users/gustavo.l.frizzone/Desktop/Estudos/DiscreteOptimization/VehicleRoutingProblem/data/vrp_16_3_1"
             ]
         }
     ]

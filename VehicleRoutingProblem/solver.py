@@ -8,6 +8,9 @@ import MixIntegerProgram.vpr_mip_gurobi as vpr_mip_gurobi
 import GeneticAlgorithm.vpr_ga as vpr_ga
 import LocalSearch.twoOptHeurisct as twoOptHeurisct
 
+
+__PLOT = True
+
 def solve_it(input_data):
     # Modify this code to run your optimization algorithm
 
@@ -28,20 +31,16 @@ def solve_it(input_data):
     #the depot is always the first customer in the input
     depot = customers[0]
 
-    if(customer_count < 30):
+    if(customer_count < 0):
         vehicle_tours = vpr_mip_gurobi.vpr_mip_gurobi(customers, vehicle_count, vehicle_capacity)
     else:
-        
         vehicle_tours = vpr_ga.vpr_geneticAlgorithm(customers=customers, vehicle_count=vehicle_count, vehicle_capacity=vehicle_capacity, popSize=100, eliteSize=10, mutationRate=0.1, generations=200)
         
         #local search for individual routes
         for v in range(vehicle_count):
             vehicle_tours[v] = twoOptHeurisct.twoOptHeurisct(vehicle_tours[v])
     
-    functions.DrawNetwork(vehicle_tours, customers, vehicle_count)
-
-    # checks that the number of customers served is correct
-    #assert sum([len(v) for v in vehicle_tours]) == len(customers) - 1
+    if(__PLOT): functions.DrawNetwork(vehicle_tours, customers, vehicle_count)
 
     # calculate the cost of the solution; for each vehicle the length of the route
     obj = functions.tourLen(vehicle_tours, vehicle_count, depot)

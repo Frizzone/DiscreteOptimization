@@ -72,9 +72,11 @@ def nearestNode(customers, customer, selected):
     nearestNode = 0
     minlength = 0
     for j in range(len(customers)):
-        if(selected[customers[j].index] == 0):
+        if(selected[customers[j].index] == 0 and customers[j].index != 0):
             l = length(customer, customers[j])
             if(minlength == 0 or minlength > l): 
                 minlength = l
                 nearestNode = j
-    return customers[nearestNode]
+    if nearestNode!=0: return customers[nearestNode]
+    else: return None
+    
