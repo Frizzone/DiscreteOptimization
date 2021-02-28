@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 import sys
 import functions
-import MixIntegerProgram.vpr_mip_gurobi as vpr_mip_gurobi
-import GeneticAlgorithm.vpr_ga as vpr_ga
-import LocalSearch.twoOptHeurisct as twoOptHeurisct
+import mixIntegerProgram.vpr_mip_gurobi as vpr_mip_gurobi
+import geneticAlgorithm.vpr_ga as vpr_ga
+import localSearch.twoOptHeurisct as twoOptHeurisct
 import visualization
 __PLOT = True
 

@@ -1,6 +1,6 @@
 import numpy as np, random, operator, pandas as pd, matplotlib.pyplot as plt, math
 import functions
-import GeneticAlgorithm.individual as ind
+import geneticAlgorithm.individual as ind
 _PLOT_PROGRESS = True
 
 def vpr_geneticAlgorithm(customers, vehicle_count, vehicle_capacity, popSize, eliteSize, mutationRate, generations):
