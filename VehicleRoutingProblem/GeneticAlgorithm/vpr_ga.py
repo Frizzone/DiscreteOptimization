@@ -159,7 +159,6 @@ def breedRouteToChild(parent, child, vehicle_id):
     # for each gene
         # with a probability "mutationRate" swap the gene with a random gene
 def mutatePopulation(population, mutationRate):
-    #return population
     mutatedPop = []
     popRanked = rankRoutes(population)
     for ind in range(0, len(population)):

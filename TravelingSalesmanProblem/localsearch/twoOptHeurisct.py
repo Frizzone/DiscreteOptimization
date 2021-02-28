@@ -1,6 +1,5 @@
-
 import functions
-import nearestNeighbourAlgorithm
+import localsearch.nearestNeighbourAlgorithm as nearestNeighbourAlgorithm
 
 #2-opt Local Search Heuristic
 def twoOptHeurisct(points, nodeCount):
@@ -8,15 +7,11 @@ def twoOptHeurisct(points, nodeCount):
 
     for i in range(nodeCount-1):
         for j in range(nodeCount-1):
-            if(isNeighborhood2opt(i, j, points, solution) == True): 
-
+            if(isNeighborhood2opt(i, j, points, solution) == True):
                 #print("A="+str(i)+"|,"+str(points[solution[i]].x)+","+str(points[solution[i]].y)+" B="+str(i+1)+"|,"+str(points[solution[i+1]].y)+","+str(points[solution[i+1]].y)+" C="+str(j)+"|,"+str(points[solution[j]].x)+","+str(points[solution[j]].y)+" D="+str(j+1)+"|,"+str(points[solution[j+1]].x)+","+str(points[solution[j+1]].y))
-
                 if(i<j): swap2opt(solution, i, j)
                 elif(i>j): swap2opt(solution, j, i)
 
-
-    if(functions.__PLOT): functions.plot(solution, points, nodeCount)
     return solution
 
 #isNeighborhood2opt:

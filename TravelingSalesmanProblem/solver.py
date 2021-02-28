@@ -1,10 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-
 import functions
-import twoOptHeurisct
-import twoOptIterateLS
-import threeOptHeurisct
+import localsearch.twoOptHeurisct as twoOptHeurisct
+import localsearch.twoOptIterateLS as twoOptIterateLS
+import localsearch.threeOptHeurisct as threeOptHeurisct
+import visualization
 
 def solve_it(input_data):
     # Modify this code to run your optimization algorithm
@@ -25,9 +25,11 @@ def solve_it(input_data):
     if(nodeCount>1000):
         solution = twoOptHeurisct.twoOptHeurisct(points, nodeCount)
     else:
-        solution = twoOptIterateLS.twoOptIterateLS(points, nodeCount, 60*5)
+        solution = twoOptIterateLS.twoOptIterateLS(points, nodeCount, 60)
 
     #solution = threeOptHeurisct.threeOptHeurisct(points, nodeCount)
+    
+    if(visualization.__PLOT): visualization.plot(solution, points, nodeCount)
 
     # calculate the length of the tour
     obj = functions.tourLength(solution, points, nodeCount)

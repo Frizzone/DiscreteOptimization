@@ -1,6 +1,6 @@
 import functions
 from enum import Enum
-import nearestNeighbourAlgorithm
+import localsearch.nearestNeighbourAlgorithm as nearestNeighbourAlgorithm
 
 
 class OptCase(Enum):

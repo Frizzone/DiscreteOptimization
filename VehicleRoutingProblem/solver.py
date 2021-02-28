@@ -1,14 +1,11 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 import sys
-import networkx as nx
-import matplotlib.pyplot as plt
 import functions
 import MixIntegerProgram.vpr_mip_gurobi as vpr_mip_gurobi
 import GeneticAlgorithm.vpr_ga as vpr_ga
 import LocalSearch.twoOptHeurisct as twoOptHeurisct
-
-
+import visualization
 __PLOT = True
 
 def solve_it(input_data):
@@ -40,7 +37,7 @@ def solve_it(input_data):
         for v in range(vehicle_count):
             vehicle_tours[v] = twoOptHeurisct.twoOptHeurisct(vehicle_tours[v])
     
-    if(__PLOT): functions.DrawNetwork(vehicle_tours, customers, vehicle_count)
+    if(__PLOT): visualization.DrawNetwork(vehicle_tours, customers, vehicle_count)
 
     # calculate the cost of the solution; for each vehicle the length of the route
     obj = functions.tourLen(vehicle_tours, vehicle_count, depot)

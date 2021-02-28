@@ -1,21 +1,9 @@
 
 import math
 from collections import namedtuple
-import matplotlib.pyplot as plt
-import random
 
 Point = namedtuple("Point", ['x', 'y'])
 
-__PLOT = False
-
-def plot(solution, points, nodeCount):
-    x = []
-    y = []
-    for index in range(nodeCount):
-        x.append(points[solution[index]].x)
-        y.append(points[solution[index]].y)
-        plt.plot(x, y, 'xb-')
-    plt.show()
 
 def length(point1, point2):
     return math.sqrt((point1.x - point2.x)**2 + (point1.y - point2.y)**2)

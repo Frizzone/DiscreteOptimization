@@ -1,4 +1,3 @@
-
 import functions
 from random import seed
 from random import randint
@@ -26,12 +25,9 @@ def nearestNeighbourAlgorithm(points, nodeCount):
                         nextNode = j
             solution.append(nextNode)
             selected[nextNode] = 1            
-            #print(str(nodeCount-len(solution)))
         else: finish = True
-    if(functions.__PLOT): functions.plot(solution, points, nodeCount)
     return solution
 
 def firstNode(points, nodeCount):
     init = randint(0, nodeCount-1)
-    #print(str(init))
     return init

@@ -1,5 +1,5 @@
 
-import twoOptHeurisct
+import localsearch.twoOptHeurisct as twoOptHeurisct
 import functions
 import time
 
