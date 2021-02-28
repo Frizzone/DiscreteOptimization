@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-import cp_ortool_graphcoloring
+import constraintProgramming.cp_ortool_graphcoloring as cp_ortool_graphcoloring
 
 class Node:
     def __init__(self, index, value, color):
@@ -29,23 +29,16 @@ def solve_it(input_data):
         parts = line.split()
         edges.append((int(parts[0]), int(parts[1])))
 
-    
 
     nodesColor = [-1]*node_count
 
     solution = cp_ortool_graphcoloring.ORToolsSolver(edges, node_count)
-
-
-    #if(validadeSolution(edges, solution)): print ("A solução é válida")
-    #else: print ("A solução não é válida")
 
     # prepare the solution in the specified output format
     output_data = str(max(solution)+1) + ' ' + str(0) + '\n'
     output_data += ' '.join(map(str, solution))
 
     return output_data
-
-
 
 if __name__ == '__main__':
     import sys

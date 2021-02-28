@@ -1,5 +1,5 @@
 from ortools.sat.python import cp_model
-
+__MAX_TIME_SEC = 10.0
 
 def ORToolsSolver(edges, node_count):
     
@@ -32,7 +32,7 @@ def ORToolsSolver(edges, node_count):
     model.Minimize(max_color)
 
     solver = cp_model.CpSolver()
-    solver.parameters.max_time_in_seconds = 10.0
+    solver.parameters.max_time_in_seconds = __MAX_TIME_SEC
     status = solver.Solve(model)
 
         
