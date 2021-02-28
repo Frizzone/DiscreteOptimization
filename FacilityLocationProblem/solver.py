@@ -2,11 +2,10 @@
 # -*- coding: utf-8 -*-
 
 from collections import namedtuple
-import facility_SCIP
-import facility_gurobi
-import networkx as nx
-import matplotlib.pyplot as plt
+import mixIntegerProgramming.facilityLocation_SCIP as facility_SCIP
+import mixIntegerProgramming.facilityLocation_gurobi as facility_gurobi
 import functions
+import visualization
 
 Point = namedtuple("Point", ['x', 'y'])
 Facility = namedtuple("Facility", ['index', 'setup_cost', 'capacity', 'location'])
@@ -33,10 +32,14 @@ def solve_it(input_data):
         customers.append(Customer(i-1-facility_count, int(parts[0]), Point(float(parts[1]), float(parts[2]))))
 
     # build a solution
-    #solution = mip_facility_SCIP.facility_SCIP(facilities, customers)
-    solution = mip_facility_gurobi.facility_gurobi(facilities, customers)
-    #validade_solution(solution, facilities, customers) 
-    #plot(solution, facilities, customers)
+    option = input("(1) MIP: Gurobi Solver\n(2) MIP: SCIP Solver\n>>")
+    solution = []
+    if(option=="1"): solution = facility_gurobi.mip_facility_gurobi(facilities, customers)
+    elif(option=="2"): solution = facility_SCIP.mip_facility_SCIP(facilities, customers)
+
+    #validade_solution(solution, facilities, customers)
+    
+    if(visualization.__PLOT): visualization.plot(solution, facilities, customers)
         
     used = [0]*len(facilities)
     for facility_index in solution:
@@ -52,35 +55,6 @@ def solve_it(input_data):
     output_data += ' '.join(map(str, solution))
 
     return output_data
-
-def plot(solution, facilities, customers):
-    G=nx.Graph()
-    
-    pos = {}
-    clist = []
-    for c in customers:
-        pos["c"+str(c.index)] = (c.location.x,c.location.y)
-        clist.append("c"+str(c.index))
-           
-    flist = []    
-    for f in facilities:
-        pos["f"+str(f.index)] = (f.location.x,f.location.y)
-        flist.append("f"+str(f.index))
-        
-    
-    nx.draw_networkx_nodes(G,pos,node_size=1,nodelist=clist,node_color='b')
-    nx.draw_networkx_nodes(G,pos,node_size=1,nodelist=flist,node_color='r')
-    
-
-    c=0
-    edges = []
-    for s in solution:
-        edges.append(("c"+str(c), "f"+str(s)))
-        c=c+1
-    
-    nx.draw_networkx_edges(G, pos, edgelist=edges)
-    
-    plt.show()
 
 def validade_solution(solution, facilities, customers):
     #validar demanda X capacidade

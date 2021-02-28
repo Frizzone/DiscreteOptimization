@@ -15,7 +15,7 @@ def DrawNetwork(tours, customers, vehicle_count):
         n = 0
         e = []
         node = []
-        cl = np.random.rand(3,)
+        cl = [np.random.rand(3,)]
 
         for customer in tours[vehicle_id]:
             G.add_node(customer.index, pos=(customer.x, customer.y))

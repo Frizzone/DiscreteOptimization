@@ -28,22 +28,41 @@ def solve_it(input_data):
     #the depot is always the first customer in the input
     depot = customers[0]
 
-    if(customer_count < 0):
+    option = input ("(1) MIP - Gurobi Solver\n(2) Genetic Algorithm\n>>")
+
+    if(option == "1"):
         vehicle_tours = vpr_mip_gurobi.vpr_mip_gurobi(customers, vehicle_count, vehicle_capacity)
-    else:
-        vehicle_tours = vpr_ga.vpr_geneticAlgorithm(customers=customers, vehicle_count=vehicle_count, vehicle_capacity=vehicle_capacity, popSize=100, eliteSize=10, mutationRate=0.1, generations=200)
+    if(option == "2"):
         
+        popsize=100
+        elitesize=10
+        mutationRate=0.1
+        generations=200
+        
+        inp = input("Population Size (default = 100):")
+        if(inp != ""): popsize = int(inp)
+        
+        inp = input("Elite Size (default = 10):")
+        if(inp != ""): elitesize = int(inp)
+        
+        inp = input("Mutation Rate (default = 0.1):")
+        if(inp != ""): mutationRate = float(inp)
+        
+        inp = input("Number of Generations (default = 200):")
+        if(inp != ""): generations = int(inp)
+            
+        vehicle_tours = vpr_ga.vpr_geneticAlgorithm(customers=customers, vehicle_count=vehicle_count, vehicle_capacity=vehicle_capacity, popSize=popsize, eliteSize=elitesize, mutationRate=mutationRate, generations=generations)
         #local search for individual routes
         for v in range(vehicle_count):
             vehicle_tours[v] = twoOptHeurisct.twoOptHeurisct(vehicle_tours[v])
     
     if(__PLOT): visualization.DrawNetwork(vehicle_tours, customers, vehicle_count)
-
     # calculate the cost of the solution; for each vehicle the length of the route
+    
     obj = functions.tourLen(vehicle_tours, vehicle_count, depot)
 
     # prepare the solution in the specified output format
-    outputData = '%.2f' % obj + ' ' + str(0) + '\n'
+    outputData = '%.2f' % obj + ' ' + '0' + '\n'
     for v in range(0, vehicle_count):
         #outputData += str(depot.index) + ' ' + ' '.join([str(customer.index) for customer in vehicle_tours[v]]) + ' ' + str(depot.index) + '\n'
         outputData += ' '.join([str(customer.index) for customer in vehicle_tours[v]]) + '\n'

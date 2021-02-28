@@ -31,8 +31,11 @@ def solve_it(input_data):
 
 
     nodesColor = [-1]*node_count
+    solution = []
+    
+    option = input("(1)Constraint Programming: CPSAT Solver\n>>")
 
-    solution = cp_ortool_graphcoloring.ORToolsSolver(edges, node_count)
+    if(option =="1"): solution = cp_ortool_graphcoloring.ORToolsSolver(edges, node_count)
     
     if(visualization.__PLOT): visualization.plot(solution, edges, node_count)
 

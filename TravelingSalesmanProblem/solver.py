@@ -21,13 +21,16 @@ def solve_it(input_data):
         points.append(functions.Point(float(parts[0]), float(parts[1])))
 
 
-
-    if(nodeCount>1000):
+    option = input ("(1) 2-opt Local Search\n(2) 2-opt Iterated Local Search\n(3) 3-opt Local Search\n>>")
+    
+    solution = []
+    if(option =="1"):
         solution = twoOptHeurisct.twoOptHeurisct(points, nodeCount)
-    else:
-        solution = twoOptIterateLS.twoOptIterateLS(points, nodeCount, 60)
-
-    #solution = threeOptHeurisct.threeOptHeurisct(points, nodeCount)
+    elif(option =="2"):
+        timeout = int(input("Timeout in seconds:"))
+        solution = twoOptIterateLS.twoOptIterateLS(points, nodeCount, timeout)
+    elif(option =="3"):
+        solution = threeOptHeurisct.threeOptHeurisct(points, nodeCount)
     
     if(visualization.__PLOT): visualization.plot(solution, points, nodeCount)
 

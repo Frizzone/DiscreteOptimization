@@ -15,7 +15,6 @@ class OptCase(Enum):
 
 def threeOptHeurisct(points, nodeCount):
     solution = nearestNeighbourAlgorithm.nearestNeighbourAlgorithm(points, nodeCount)
-    functions.plot(solution, points, nodeCount)
 
     for i in range(nodeCount-2):
         for j in range(nodeCount-2):
@@ -23,8 +22,6 @@ def threeOptHeurisct(points, nodeCount):
                 if(i!=j and j!=l and i!=l and i!=j+1 and j!=l+1 and i!=j+1): 
                     bestSwap = bestNeighborhood3opt(i, j, l, points, solution)
                     if(bestSwap>0): solution = swap3opt(solution, i, j, l, bestSwap)
-    
-    functions.plot(solution, points, nodeCount)
     return solution
 
 def bestNeighborhood3opt(i, j, l, points, solution):

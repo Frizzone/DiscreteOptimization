@@ -25,8 +25,8 @@
 
 
 from collections import namedtuple
-from ortools.sat.python import cp_model
-from ortools.linear_solver import pywraplp
+import constraintProgramming.setcover_CP_cpsatsolver as setcover_CP
+import mixIntegerProgramming.setcover_MIP_SCIPsolver as setcover_MIP
 
 Set = namedtuple("Set", ['index', 'cost', 'items'])
 
@@ -46,14 +46,13 @@ def solve_it(input_data):
         sets.append(Set(i-1, int(parts[0]), map(int, parts[1:])))
 
 
-    
+    solution = []
 
-    # build a trivial solution
-    # pick add sets one-by-one until all the items are covered
-    solution = setcover_CP_cpsatsolver(sets, set_count, item_count)
-    #solution = setcover_MIP_SCIPsolver(sets, set_count, item_count)
-    coverted = set()
+    option = input("(1) Constraint Programming - SAT Solver\n(2) MIP - SCIP Solver\n>>")
+    if(option=="1"): solution = setcover_CP.setcover_CP_cpsatsolver(sets, set_count, item_count)
+    elif(option=="2"): solution = setcover_MIP.setcover_MIP_SCIPsolver(sets, set_count, item_count)
     
+    coverted = set()
     for s in sets:
         coverted |= set(s.items)
         if len(coverted) >= item_count:
@@ -70,80 +69,6 @@ def solve_it(input_data):
 
 
 import sys
-
-
-def setcover_CP_cpsatsolver(sets, set_count, item_count):
-    model = cp_model.CpModel()
-
-    #matriz de cobertura s
-    # s i j = 1 se existe a cobertura do set i para o item j
-    s = []
-    for i in range(set_count):
-        s.append([])
-        items = list(sets[i].items)
-        for j in range(item_count):
-            try: 
-                items.index(j)
-                s[i].append(1) 
-            except ValueError: s[i].append(0)
-        
-
-    #xi=1 se i for selecionado
-    x = [model.NewIntVar(0, 1, str(i)) for i in range(set_count)]
-
-    #restrição de cada item esta coberto por pelo menos uma set
-    c = []
-    for j in range(item_count):
-        c.append(model.Add(sum(x[i] * s[i][j] for i in range(set_count)) >= 1))
-
-    #minimizar custo*xi
-    model.Minimize(sum([sets[i].cost * x[i] for i in range(set_count)]))
-
-    solver = cp_model.CpSolver()
-    solver.parameters.max_time_in_seconds = 60.0
-    status = solver.Solve(model)
-    
-    solution = []
-    for i in range(set_count):
-        solution.append(solver.Value(x[i]))
-    
-    return solution
-
-def setcover_MIP_SCIPsolver(sets, set_count, item_count):
-    model = pywraplp.Solver.CreateSolver('SCIP')
-
-    #matriz de cobertura s
-    # s i j = 1 se existe a cobertura do set i para o item j
-    s = []
-    for i in range(set_count):
-        s.append([])
-        items = list(sets[i].items)
-        for j in range(item_count):
-            try: 
-                items.index(j)
-                s[i].append(1) 
-            except ValueError: s[i].append(0)
-        
-
-    #xi=1 se i for selecionado
-    x = [model.IntVar(0, 1, str(i)) for i in range(set_count)]
-
-    #restrição de cada item esta coberto por pelo menos uma set
-    c = []
-    for j in range(item_count):
-        c.append(model.Add(sum(x[i] * s[i][j] for i in range(set_count)) >= 1))
-
-    #minimizar custo*xi
-    model.Minimize(sum([sets[i].cost * x[i] for i in range(set_count)]))
-    status = model.Solve()
-    
-    solution = []
-    for i in range(set_count):
-        solution.append(x[i].solution_value())
-    
-    return solution
-
-
 
 if __name__ == '__main__':
     import sys

@@ -2,6 +2,7 @@ from ortools.sat.python import cp_model
 __MAX_TIME_SEC = 10.0
 
 def ORToolsSolver(edges, node_count):
+    __MAX_TIME_SEC = int(input("timeout in seconds:\n>>"))
     
     model = cp_model.CpModel()
 
