@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 import constraintProgramming.cp_ortool_graphcoloring as cp_ortool_graphcoloring
-
+import visualization
 class Node:
     def __init__(self, index, value, color):
         self.index = index
@@ -33,6 +33,8 @@ def solve_it(input_data):
     nodesColor = [-1]*node_count
 
     solution = cp_ortool_graphcoloring.ORToolsSolver(edges, node_count)
+    
+    if(visualization.__PLOT): visualization.plot(solution, edges, node_count)
 
     # prepare the solution in the specified output format
     output_data = str(max(solution)+1) + ' ' + str(0) + '\n'
