@@ -11,7 +11,8 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "args": [
-                "C:/Users/gustavo.l.frizzone/Desktop/Estudos/DiscreteOptimization/vehicleRoutingProblem/data/vrp_16_3_1"
+                "C:/Users/gustavo.l.frizzone/Desktop/Estudos/DiscreteOptimization/knapsackProblem/data/ks_400_0"
+                //"C:/Users/gustavo.l.frizzone/Desktop/Estudos/DiscreteOptimization/vehicleRoutingProblem/data/vrp_16_3_1"
                 //"C:/Users/gustavo.l.frizzone/Desktop/Estudos/DiscreteOptimization/graphColoringProblem/data/gc_20_1"
             ]
         }
