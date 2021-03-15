@@ -22,7 +22,7 @@ def solve_it(input_data):
         parts = line.split()
         items.append(Item(i-1, int(parts[0]), int(parts[1]), int(parts[1])/int(parts[0]) ))
 
-    inp = input("(1) Guloso\n(2) Exaustivo\n(3) Backtracking\n(4) TabuSearch\n>>")
+    inp = input("(1) Guloso\n(2) Exaustivo\n(3) Backtracking\n(4) TabuSearch - Just Feasible Solution\n(5) TabuSearch - Allow Unfeasible Solution\n>>")
     
     taken = [0]*len(items)
     
@@ -34,8 +34,8 @@ def solve_it(input_data):
         items.sort(key = lambda x: (x.weight/x.value))
         value, toTake = bt.branch_bound(items, 0, capacity)
         for i in toTake: taken[i.index] = 1
-    elif((inp == "4")):
-        solution = ts.tabuSearch(items, capacity)
+    elif(inp == "4" or inp=="5"):
+        solution = ts.tabuSearch(items, capacity, inp)
         value = solution["value"]
         taken = solution["taken"]
 
